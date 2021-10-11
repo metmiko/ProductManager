@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,7 @@ public class ProductServiceTest {
     private static final Double EUR_FX_RATE = 1.65;
     private static final String UNSUPPORTED_CURRENCY_ABBREVIATION = "PLN";
     private static final String VALID_CURRENCY_ABBREVIATIONS = "USD,CAD,EUR,GBP";
+    private static final Integer NON_EXISTING_PRODUCT_ID = 500;
 
     @Test
     public void create() {
@@ -75,8 +77,11 @@ public class ProductServiceTest {
         when(mockFxService.getSupportedCurrencies()).thenReturn(VALID_CURRENCY_ABBREVIATIONS);
         when(mockProductRepository.findById(any(Integer.class)))
                 .thenReturn(Optional.empty());
-        Product returnedProduct = service.get(500, "USD");
-        assertNull(returnedProduct);
+        ProductNotFoundException exception = assertThrows(ProductNotFoundException.class,
+                () -> service.get(NON_EXISTING_PRODUCT_ID, "USD"));
+        String expectedMessage = String.format("Product with id: %s does not exist.", NON_EXISTING_PRODUCT_ID);
+        assertEquals(expectedMessage, exception.getMessage());
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     }
 
     @Test

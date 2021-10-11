@@ -72,7 +72,7 @@ public class ProductService {
         } else {
             String errorMessage = String.format("Product with id: %s does not exist.", id);
             LOG.error(errorMessage);
-            throw new ProductNotFoundException(errorMessage, 400);
+            throw new ProductNotFoundException(errorMessage, 404);
         }
     }
 
